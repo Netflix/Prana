@@ -1,0 +1,55 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+
+repositories {
+    mavenCentral()
+}
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+dependencies {
+    
+    compile 'org.slf4j:slf4j-api:1.7.7'
+    compile 'org.slf4j:slf4j-log4j12:1.7.7'
+    compile 'log4j:log4j:1.2.17'
+
+    compile 'com.netflix.ribbon:ribbon:2.0-RC9'
+    compile 'com.netflix.ribbon:ribbon-eureka:2.0-RC9'
+    compile 'com.netflix.ribbon:ribbon-transport:2.0-RC9'
+    compile 'com.netflix.karyon:karyon-governator:2.1.00-RC5'
+    compile 'com.netflix.karyon:karyon-eureka:2.1.00-RC5'
+    compile 'com.netflix.karyon:karyon-servo:2.1.00-RC5'
+    compile 'com.netflix.karyon:karyon-archaius:2.1.00-RC5'
+    compile 'com.netflix.blitz4j:blitz4j:1.35'
+
+    compile 'com.google.guava:guava:18.0'
+
+    compile 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.3.3'
+    compile 'com.fasterxml.jackson.core:jackson-core:2.3.3'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.3.3'
+    compile 'org.glassfish.web:javax.el:2.2.5'
+
+    compile 'args4j:args4j:2.0.28'
+
+    testCompile 'junit:junit:4.11'
+    testCompile 'org.mockito:mockito-all:1.9.5'
+}
+
+task createBundle(type: Zip) {
+    def baseDir = { archiveName - ".zip" }
+    into(baseDir) {
+        from(project.file("src/dist")).into("lib") {
+            from(jar)
+            from(project.configurations.runtime)
+        }
+        
+        from("scripts/") {
+            include("*")
+        }
+    }
+}
+
+artifacts {
+    archives createBundle
+}
