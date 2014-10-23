@@ -16,13 +16,14 @@ public class SimpleRouter implements RequestHandler<ByteBuf, ByteBuf> {
     private final SimpleUriRouter<ByteBuf, ByteBuf> delegate;
 
     @Inject
-    public SimpleRouter(ProxyHandler proxyHandler, HealthCheckHandler healthCheckHandler, HostsHandler hostsHandler, PingHandler pingHandler) {
+    public SimpleRouter(ProxyHandler proxyHandler, HealthCheckHandler healthCheckHandler, HostsHandler hostsHandler,
+                        PingHandler pingHandler, DynamicPropertiesHandler dynamicPropertiesHandler) {
         delegate = new SimpleUriRouter<>();
-        delegate.addUri("/healthcheck",
-                healthCheckHandler)
+        delegate.addUri("/healthcheck",healthCheckHandler)
+                .addUri("/dynamicproperties", dynamicPropertiesHandler)
                 .addUri("/proxy", proxyHandler)
-        .addUri("/eureka/hosts", hostsHandler)
-        .addUri("/ping", pingHandler);
+                .addUri("/eureka/hosts", hostsHandler)
+                .addUri("/ping", pingHandler);
     }
 
     @Override
