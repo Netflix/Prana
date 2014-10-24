@@ -39,23 +39,22 @@ public class ProxyHandler implements RequestHandler<ByteBuf, ByteBuf> {
 
     private final String ERROR_RESPONSE = "<status><status_code>500</status_code><message>Error forwarding request to origin</message></status>";
 
+    private final int START_INDEX_OF_VIP = 7;
+
 
     @Override
     public Observable<Void> handle(final HttpServerRequest<ByteBuf> serverRequest, final HttpServerResponse<ByteBuf> serverResponse) {
 
-        String vip = "";
-        String path = "";
-        try {
-            URL url = getURL(serverRequest.getQueryParameters());
-            vip = getVip(url);
-            path = url.getPath();
-        } catch (MalformedURLException e) {
+        String[] vipAndPath = getVipAndPath(serverRequest.getPath().substring(START_INDEX_OF_VIP));
+        String vip = vipAndPath[0];
+        String path = vipAndPath[1];
+        if(vip.equalsIgnoreCase("")) {
             serverResponse.getHeaders().set("Content-Type", "application/xml");
             serverResponse.writeString(ERROR_RESPONSE);
-            logger.error(e.getMessage());
+            logger.error("VIP is empty");
             return serverResponse.close();
-        }
 
+        }
 
         final LoadBalancingHttpClient<ByteBuf, ByteBuf> client = getClient(vip);
         final HttpClientRequest<ByteBuf> req = HttpClientRequest.create(serverRequest.getHttpMethod(), path);
@@ -182,8 +181,11 @@ public class ProxyHandler implements RequestHandler<ByteBuf, ByteBuf> {
         return null;
     }
 
-    private String getVip(URL url) {
-        return url.getHost() + ":" + url.getPort();
+    private String[] getVipAndPath(String requestPath) {
+        int i = requestPath.indexOf("/");
+        String vipName = requestPath.substring(0, i);
+        String path = requestPath.substring(i, requestPath.length());
+        return new String[] {vipName, path};
     }
 
 }
