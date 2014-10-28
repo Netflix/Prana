@@ -63,7 +63,7 @@ public class HealthCheckHandler implements RequestHandler<ByteBuf, ByteBuf> {
             //continue
         }
         HttpClient<ByteBuf, ByteBuf> httpClient = RxNetty.<ByteBuf, ByteBuf>newHttpClientBuilder(host, port)
-                .pipelineConfigurator(PipelineConfigurators.httpClientConfigurator())
+                .pipelineConfigurator(PipelineConfigurators.<ByteBuf, ByteBuf>httpClientConfigurator())
                 .channelOption(ChannelOption.CONNECT_TIMEOUT_MILLIS, 2000)
                 .build();
         return httpClient.submit(HttpClientRequest.createGet(path));
