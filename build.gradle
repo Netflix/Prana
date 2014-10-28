@@ -23,12 +23,9 @@ dependencies {
     compile 'com.netflix.karyon:karyon-archaius:2.1.00-RC5'
     compile 'com.netflix.blitz4j:blitz4j:1.35'
 
-    compile 'com.google.guava:guava:18.0'
-
     compile 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.3.3'
     compile 'com.fasterxml.jackson.core:jackson-core:2.3.3'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.3.3'
-    compile 'org.glassfish.web:javax.el:2.2.5'
 
     compile 'args4j:args4j:2.0.28'
 
