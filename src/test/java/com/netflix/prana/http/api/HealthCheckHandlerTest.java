@@ -1,5 +1,7 @@
 package com.netflix.prana.http.api;
 
+import com.netflix.config.ConfigurationManager;
+import com.netflix.config.DynamicProperty;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -11,10 +13,7 @@ import io.reactivex.netty.protocol.http.server.HttpServer;
 import io.reactivex.netty.protocol.http.server.HttpServerRequest;
 import io.reactivex.netty.protocol.http.server.HttpServerResponse;
 import io.reactivex.netty.protocol.http.server.RequestHandler;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import rx.Observable;
 
 public class HealthCheckHandlerTest {
@@ -55,7 +54,7 @@ public class HealthCheckHandlerTest {
 
     @Test
     public void shouldPingExternalHostsForHealthCheck() {
-        System.setProperty("prana.host.healthcheck.url", "http://localhost:" + externalServerPort);
+        ConfigurationManager.getConfigInstance().setProperty("prana.host.healthcheck.url", "http://localhost:" + externalServerPort);
         HttpClientRequest<ByteBuf> request = HttpClientRequest.<ByteBuf>createGet("/healthcheck");
         Assert.assertEquals("<health>ok</health>", Utils.getResponse(request, client));
     }
@@ -63,6 +62,7 @@ public class HealthCheckHandlerTest {
     @Test
     public void shouldReturnOkIfHealthCheckURLIsSetToNull() {
         System.setProperty("prana.host.healthcheck.url", "");
+        ConfigurationManager.getConfigInstance().setProperty("prana.host.healthcheck.url", "");
         HttpClientRequest<ByteBuf> request = HttpClientRequest.<ByteBuf>createGet("/healthcheck");
         Assert.assertEquals("<health>ok</health>", Utils.getResponse(request, client));
     }

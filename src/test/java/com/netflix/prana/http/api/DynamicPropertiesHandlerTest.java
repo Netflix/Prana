@@ -1,5 +1,6 @@
 package com.netflix.prana.http.api;
 
+import com.netflix.config.ConfigurationManager;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelOption;
 import io.reactivex.netty.RxNetty;
@@ -40,7 +41,7 @@ public class DynamicPropertiesHandlerTest {
 
     @Test
     public void shouldReturnListOfProperties() {
-        System.setProperty("foo", "bar");
+        ConfigurationManager.getConfigInstance().setProperty("foo", "bar");
         HttpClientRequest<ByteBuf> request = HttpClientRequest.<ByteBuf>createGet("/dynamicproperties?id=foo");
         assertEquals("[\"bar\"]", Utils.getResponse(request, client));
     }

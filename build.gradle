@@ -68,6 +68,12 @@ apply from: file('gradle/release.gradle')
     testCompile 'org.mockito:mockito-all:1.9.5'
     }
 
+test {
+    testLogging {
+        exceptionFormat = 'full'
+    }
+}
+
 run {
     systemProperty 'eureka.validateInstanceId', 'false'
     systemProperty 'eureka.serviceUrl.default', 'http://localhost:8080/eureka/v2/'
