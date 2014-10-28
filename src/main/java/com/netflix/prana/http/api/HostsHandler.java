@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.netflix.appinfo.InstanceInfo.InstanceStatus;
+
 /**
  * Created by dchoudhury on 10/20/14.
  */
@@ -46,7 +48,7 @@ public class HostsHandler implements RequestHandler<ByteBuf, ByteBuf> {
         List<InstanceInfo> instances = discoveryClient.getApplication(appName).getInstances();
         List<String> hosts = new ArrayList<>();
         for (InstanceInfo instanceInfo : instances) {
-            if (vip != null && !instanceInfo.getVIPAddress().contains(vip)) {
+            if (vip != null && !instanceInfo.getVIPAddress().contains(vip) && instanceInfo.getStatus().equals(InstanceStatus.UP)) {
                 continue;
             }
             hosts.add(instanceInfo.getHostName());
