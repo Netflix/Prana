@@ -5,18 +5,10 @@ import io.reactivex.netty.RxNetty;
 import io.reactivex.netty.pipeline.PipelineConfigurators;
 import io.reactivex.netty.protocol.http.client.HttpClient;
 import io.reactivex.netty.protocol.http.client.HttpClientRequest;
-import io.reactivex.netty.protocol.http.client.HttpClientResponse;
 import io.reactivex.netty.protocol.http.server.HttpServer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.Assert;
-import rx.Observable;
-import rx.exceptions.OnErrorThrowable;
-import rx.functions.Action1;
-import rx.functions.Func1;
-
-import java.nio.charset.Charset;
 
 import static org.junit.Assert.assertEquals;
 
@@ -48,24 +40,7 @@ public class PingHandlerTest {
     @Test
     public void shouldRespondWithPong() {
         HttpClientRequest<ByteBuf> request = HttpClientRequest.<ByteBuf>createGet("/ping");
-        String response = client.submit(request).flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<String>>() {
-            @Override
-            public Observable<String> call(HttpClientResponse<ByteBuf> response) {
-                return response.getContent().map(new Func1<ByteBuf, String>() {
-                    @Override
-                    public String call(ByteBuf byteBuf) {
-                        return byteBuf.toString(Charset.defaultCharset());
-                    }
-                });
-            }
-        }).onErrorFlatMap(new Func1<OnErrorThrowable, Observable<String>>() {
-            @Override
-            public Observable<String> call(OnErrorThrowable onErrorThrowable) {
-                throw onErrorThrowable;
-            }
-        }).toBlocking().first();
-
-        assertEquals("pong", response);
+        assertEquals("pong", Utils.getResponse(request, client));
     }
 
 }

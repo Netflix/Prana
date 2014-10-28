@@ -16,6 +16,7 @@ import rx.Observable;
 import rx.exceptions.OnErrorThrowable;
 import rx.functions.Func1;
 
+import javax.rmi.CORBA.Util;
 import java.nio.charset.Charset;
 
 import static org.junit.Assert.*;
@@ -49,24 +50,15 @@ public class DynamicPropertiesHandlerTest {
     public void shouldReturnListOfProperties() {
         System.setProperty("foo", "bar");
         HttpClientRequest<ByteBuf> request = HttpClientRequest.<ByteBuf>createGet("/dynamicproperties?id=foo");
-        String response = client.submit(request).flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<String>>() {
-            @Override
-            public Observable<String> call(HttpClientResponse<ByteBuf> response) {
-                return response.getContent().map(new Func1<ByteBuf, String>() {
-                    @Override
-                    public String call(ByteBuf byteBuf) {
-                        return byteBuf.toString(Charset.defaultCharset());
-                    }
-                });
-            }
-        }).onErrorFlatMap(new Func1<OnErrorThrowable, Observable<? extends String>>() {
-            @Override
-            public Observable<? extends String> call(OnErrorThrowable onErrorThrowable) {
-                throw onErrorThrowable;
-            }
-        }).toBlocking().first();
+        assertEquals("[\"bar\"]", Utils.getResponse(request, client));
+    }
 
-        assertEquals("[\"bar\"]", response);
+
+    @Test
+    public void shouldReturnNullForUnknownProperties() {
+        HttpClientRequest<ByteBuf> request = HttpClientRequest.<ByteBuf>createGet("/dynamicproperties?id=bar");
+        assertEquals("[null]", Utils.getResponse(request, client));
+
     }
 
 }
