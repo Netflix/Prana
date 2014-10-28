@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ProxyHandler implements RequestHandler<ByteBuf, ByteBuf> {
 
-    private static final Map<String, LoadBalancingHttpClient<ByteBuf, ByteBuf>> httpClients = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, LoadBalancingHttpClient<ByteBuf, ByteBuf>> httpClients = new ConcurrentHashMap<>();
 
     private final String PROXY_REQ_ACCEPT_ENCODING = DynamicProperty.getInstance("zuul.proxy.req.acceptencoding").getString("deflate, gzip");
 
