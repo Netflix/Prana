@@ -139,7 +139,7 @@ public class ProxyHandler implements RequestHandler<ByteBuf, ByteBuf> {
             }
             request.getHeaders().add(name, serverRequest.getHeaders().getHeader(name));
         }
-        // Normally always request gzipped from the server. But can be overridden with a Fast Property.
+        // Normally always request gzipped from the server. But can be overridden with a Dynamic Property.
         if (PROXY_REQ_ACCEPT_ENCODING != null && PROXY_REQ_ACCEPT_ENCODING.length() > 0) {
             request.getHeaders().addHeader("accept-encoding", PROXY_REQ_ACCEPT_ENCODING);
         }
