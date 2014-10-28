@@ -1,5 +1,5 @@
-import com.netflix.prana.http.api.HealthCheckHandler;
-import com.netflix.prana.http.api.PingHandler;
+package com.netflix.prana.http.api;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.codec.http.HttpResponseStatus;

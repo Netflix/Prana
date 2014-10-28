@@ -1,4 +1,5 @@
-import com.netflix.prana.http.api.PingHandler;
+package com.netflix.prana.http.api;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelOption;
 import io.reactivex.netty.RxNetty;
@@ -10,9 +11,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
-public class PingHandlerTest {
+public class DynamicPropertiesHandlerTest {
 
     private HttpServer<ByteBuf, ByteBuf> server;
 
@@ -22,7 +23,7 @@ public class PingHandlerTest {
 
     @Before
     public void setUp() {
-        server = RxNetty.newHttpServerBuilder(port, new PingHandler())
+        server = RxNetty.newHttpServerBuilder(port, new DynamicPropertiesHandler())
                 .pipelineConfigurator(PipelineConfigurators.<ByteBuf, ByteBuf>httpServerConfigurator()).build();
         server.start();
         client = RxNetty.<ByteBuf, ByteBuf>newHttpClientBuilder("localhost", port)
@@ -38,9 +39,18 @@ public class PingHandlerTest {
     }
 
     @Test
-    public void shouldRespondWithPong() {
-        HttpClientRequest<ByteBuf> request = HttpClientRequest.<ByteBuf>createGet("/ping");
-        assertEquals("pong", Utils.getResponse(request, client));
+    public void shouldReturnListOfProperties() {
+        System.setProperty("foo", "bar");
+        HttpClientRequest<ByteBuf> request = HttpClientRequest.<ByteBuf>createGet("/dynamicproperties?id=foo");
+        assertEquals("[\"bar\"]", Utils.getResponse(request, client));
+    }
+
+
+    @Test
+    public void shouldReturnNullForUnknownProperties() {
+        HttpClientRequest<ByteBuf> request = HttpClientRequest.<ByteBuf>createGet("/dynamicproperties?id=bar");
+        assertEquals("[null]", Utils.getResponse(request, client));
+
     }
 
 }
