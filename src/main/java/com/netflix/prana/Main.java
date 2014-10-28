@@ -23,18 +23,6 @@ public class Main {
         }
 
 
-        String envFromSystemProps = System.getenv("NETFLIX_ENVIRONMENT");
-
-        if (null == envFromSystemProps) {
-            envFromSystemProps = System.getProperty("NETFLIX_ENVIRONMENT");
-        }
-
-        if (null == envFromSystemProps) {
-            envFromSystemProps = "test";
-        }
-
-        System.setProperty("archaius.deployment.environment", envFromSystemProps);
-
         try {
             MainModule sm = new MainModule(pranaConfig);
             @SuppressWarnings("deprecation")
