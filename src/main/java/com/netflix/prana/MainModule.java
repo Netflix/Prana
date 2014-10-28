@@ -32,7 +32,7 @@ public class MainModule extends AbstractModule {
                 simpleRouter,
                 new KaryonBootstrapSuite(),
                 KaryonEurekaModule.asSuite(),
-                new ArchaiusSuite("prana")
+                new ArchaiusSuite(config.getAppName())
         );
     }
 }
