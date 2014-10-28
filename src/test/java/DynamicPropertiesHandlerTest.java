@@ -1,3 +1,5 @@
+import com.netflix.config.DynamicProperty;
+import com.netflix.prana.http.api.DynamicPropertiesHandler;
 import com.netflix.prana.http.api.PingHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelOption;
@@ -10,17 +12,15 @@ import io.reactivex.netty.protocol.http.server.HttpServer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.Assert;
 import rx.Observable;
 import rx.exceptions.OnErrorThrowable;
-import rx.functions.Action1;
 import rx.functions.Func1;
 
 import java.nio.charset.Charset;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
-public class PingHandlerTest {
+public class DynamicPropertiesHandlerTest {
 
     private HttpServer<ByteBuf, ByteBuf> server;
 
@@ -30,7 +30,7 @@ public class PingHandlerTest {
 
     @Before
     public void setUp() {
-        server = RxNetty.newHttpServerBuilder(port, new PingHandler())
+        server = RxNetty.newHttpServerBuilder(port, new DynamicPropertiesHandler())
                 .pipelineConfigurator(PipelineConfigurators.<ByteBuf, ByteBuf>httpServerConfigurator()).build();
         server.start();
         client = RxNetty.<ByteBuf, ByteBuf>newHttpClientBuilder("localhost", port)
@@ -46,8 +46,9 @@ public class PingHandlerTest {
     }
 
     @Test
-    public void shouldRespondWithPong() {
-        HttpClientRequest<ByteBuf> request = HttpClientRequest.<ByteBuf>createGet("/ping");
+    public void shouldReturnListOfProperties() {
+        System.setProperty("foo", "bar");
+        HttpClientRequest<ByteBuf> request = HttpClientRequest.<ByteBuf>createGet("/dynamicproperties?id=foo");
         String response = client.submit(request).flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<String>>() {
             @Override
             public Observable<String> call(HttpClientResponse<ByteBuf> response) {
@@ -58,14 +59,14 @@ public class PingHandlerTest {
                     }
                 });
             }
-        }).onErrorFlatMap(new Func1<OnErrorThrowable, Observable<String>>() {
+        }).onErrorFlatMap(new Func1<OnErrorThrowable, Observable<? extends String>>() {
             @Override
-            public Observable<String> call(OnErrorThrowable onErrorThrowable) {
+            public Observable<? extends String> call(OnErrorThrowable onErrorThrowable) {
                 throw onErrorThrowable;
             }
         }).toBlocking().first();
 
-        assertEquals("pong", response);
+        assertEquals("[\"bar\"]", response);
     }
 
 }
