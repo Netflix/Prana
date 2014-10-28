@@ -4,6 +4,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import com.netflix.adminresources.resources.KaryonWebAdminModule;
 import com.netflix.karyon.Karyon;
 import com.netflix.karyon.KaryonBootstrapSuite;
 import com.netflix.karyon.KaryonServer;
@@ -32,7 +33,7 @@ public class MainModule extends AbstractModule {
                 simpleRouter,
                 new KaryonBootstrapSuite(),
                 KaryonEurekaModule.asSuite(),
-                KaryonWebAdminModule.class,
+                KaryonWebAdminModule.asSuite(),
                 new ArchaiusSuite(config.getAppName())
         );
     }
