@@ -38,8 +38,8 @@ public class HostsHandler implements RequestHandler<ByteBuf, ByteBuf> {
     @Override
     public Observable<Void> handle(HttpServerRequest<ByteBuf> serverRequest, HttpServerResponse<ByteBuf> serverResponse) {
         Map<String, List<String>> queryParameters = serverRequest.getQueryParameters();
-        String appName = forQueryParam(queryParameters, "appName");
-        String vip = forQueryParam(queryParameters, "vip");
+        String appName = Utils.forQueryParam(queryParameters, "appName");
+        String vip = Utils.forQueryParam(queryParameters, "vip");
         if (Strings.isNullOrEmpty(appName)) {
             serverResponse.setStatus(HttpResponseStatus.BAD_REQUEST);
             serverResponse.writeString("appName has to be specified");
@@ -65,13 +65,4 @@ public class HostsHandler implements RequestHandler<ByteBuf, ByteBuf> {
             return serverResponse.close();
         }
     }
-
-    private String forQueryParam(Map<String, List<String>> queryParams, String paramName) {
-        List<String> values = queryParams.get(paramName);
-        if (values != null) {
-            return values.get(0);
-        }
-        return null;
-    }
-
 }

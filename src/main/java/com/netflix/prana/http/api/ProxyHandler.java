@@ -39,15 +39,11 @@ public class ProxyHandler implements RequestHandler<ByteBuf, ByteBuf> {
 
     private final String ERROR_RESPONSE = "<status><status_code>500</status_code><message>Error forwarding request to origin</message></status>";
 
-    private final int START_INDEX_OF_VIP = 7;
-
 
     @Override
     public Observable<Void> handle(final HttpServerRequest<ByteBuf> serverRequest, final HttpServerResponse<ByteBuf> serverResponse) {
-
-        String[] vipAndPath = getVipAndPath(serverRequest.getPath().substring(START_INDEX_OF_VIP));
-        String vip = vipAndPath[0];
-        String path = vipAndPath[1];
+        String vip = Utils.forQueryParam(serverRequest.getQueryParameters(), "vip");
+        String path = Utils.forQueryParam(serverRequest.getQueryParameters(), "path");
         if(vip.equalsIgnoreCase("")) {
             serverResponse.getHeaders().set("Content-Type", "application/xml");
             serverResponse.writeString(ERROR_RESPONSE);
@@ -163,29 +159,6 @@ public class ProxyHandler implements RequestHandler<ByteBuf, ByteBuf> {
 
         }
         return client;
-    }
-
-    private URL getURL(Map<String, List<String>> queryParams) throws MalformedURLException {
-        String u = forQueryParam(queryParams, "url");
-        if (Strings.isNullOrEmpty(u)) {
-            throw new MalformedURLException("url can't be null");
-        }
-        return new URL(u);
-    }
-
-    private String forQueryParam(Map<String, List<String>> queryParams, String paramName) {
-        List<String> values = queryParams.get(paramName);
-        if (values != null) {
-            return values.get(0);
-        }
-        return null;
-    }
-
-    private String[] getVipAndPath(String requestPath) {
-        int i = requestPath.indexOf("/");
-        String vipName = requestPath.substring(0, i);
-        String path = requestPath.substring(i, requestPath.length());
-        return new String[] {vipName, path};
     }
 
 }

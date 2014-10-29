@@ -41,7 +41,7 @@ public class PingHandlerTest {
     @Test
     public void shouldRespondWithPong() {
         HttpClientRequest<ByteBuf> request = HttpClientRequest.<ByteBuf>createGet("/ping");
-        assertEquals("pong", Utils.getResponse(request, client));
+        assertEquals("pong", TestUtils.getResponse(request, client));
     }
 
 }

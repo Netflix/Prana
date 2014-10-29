@@ -10,7 +10,7 @@ import rx.functions.Func1;
 
 import java.nio.charset.Charset;
 
-public class Utils {
+public class TestUtils {
 
     public static String getResponse(HttpClientRequest<ByteBuf> request, HttpClient<ByteBuf, ByteBuf> client) {
         return client.submit(request).flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<String>>() {

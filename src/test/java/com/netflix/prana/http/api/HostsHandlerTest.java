@@ -1,8 +1,6 @@
 package com.netflix.prana.http.api;
 
 import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.DiscoveryClient;
-import com.netflix.discovery.shared.Application;
 import com.netflix.prana.service.HostService;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelOption;
@@ -55,7 +53,7 @@ public class HostsHandlerTest {
     @Test
     public void shouldReturnAListOfHostsWhenBothVipAndAppIsSpecified() {
         HttpClientRequest<ByteBuf> request = HttpClientRequest.<ByteBuf>createGet("/hosts?appName=foo&vip=bar");
-        String response = Utils.getResponse(request, client);
+        String response = TestUtils.getResponse(request, client);
         Assert.assertEquals("[\"host1\",\"host2\"]", response);
     }
 

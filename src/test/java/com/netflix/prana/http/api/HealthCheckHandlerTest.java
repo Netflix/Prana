@@ -1,7 +1,6 @@
 package com.netflix.prana.http.api;
 
 import com.netflix.config.ConfigurationManager;
-import com.netflix.config.DynamicProperty;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -56,7 +55,7 @@ public class HealthCheckHandlerTest {
     public void shouldPingExternalHostsForHealthCheck() {
         ConfigurationManager.getConfigInstance().setProperty("prana.host.healthcheck.url", "http://localhost:" + externalServerPort);
         HttpClientRequest<ByteBuf> request = HttpClientRequest.<ByteBuf>createGet("/healthcheck");
-        Assert.assertEquals("<health>ok</health>", Utils.getResponse(request, client));
+        Assert.assertEquals("<health>ok</health>", TestUtils.getResponse(request, client));
     }
 
     @Test
@@ -64,7 +63,7 @@ public class HealthCheckHandlerTest {
         System.setProperty("prana.host.healthcheck.url", "");
         ConfigurationManager.getConfigInstance().setProperty("prana.host.healthcheck.url", "");
         HttpClientRequest<ByteBuf> request = HttpClientRequest.<ByteBuf>createGet("/healthcheck");
-        Assert.assertEquals("<health>ok</health>", Utils.getResponse(request, client));
+        Assert.assertEquals("<health>ok</health>", TestUtils.getResponse(request, client));
     }
 
 
