@@ -6,6 +6,7 @@ import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.DiscoveryClient;
+import com.netflix.prana.service.HostService;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.reactivex.netty.protocol.http.server.HttpServerRequest;
@@ -26,11 +27,11 @@ public class HostsHandler implements RequestHandler<ByteBuf, ByteBuf> {
 
     private final ObjectMapper objectMapper;
 
-    private DiscoveryClient discoveryClient;
+    private HostService hostService;
 
     @Inject
-    public HostsHandler(DiscoveryClient discoveryClient) {
-        this.discoveryClient = discoveryClient;
+    public HostsHandler(HostService hostService) {
+        this.hostService = hostService;
         this.objectMapper = new ObjectMapper();
     }
 
@@ -44,7 +45,7 @@ public class HostsHandler implements RequestHandler<ByteBuf, ByteBuf> {
             serverResponse.writeString("appName has to be specified");
             return serverResponse.close();
         }
-        List<InstanceInfo> instances = discoveryClient.getApplication(appName).getInstances();
+        List<InstanceInfo> instances = hostService.getHosts(appName);
         List<String> hosts = new ArrayList<>();
         for (InstanceInfo instanceInfo : instances) {
             if (vip != null && !instanceInfo.getVIPAddress().contains(vip) && instanceInfo.getStatus().equals(InstanceStatus.UP)) {
