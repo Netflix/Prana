@@ -1,5 +1,6 @@
 package com.netflix.prana.service;
 
+import com.google.inject.Inject;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.DiscoveryClient;
 
@@ -9,6 +10,7 @@ public class EurekaHostService implements HostService {
 
     private DiscoveryClient discoveryClient;
 
+    @Inject
     public EurekaHostService(DiscoveryClient discoveryClient) {
         this.discoveryClient = discoveryClient;
     }
