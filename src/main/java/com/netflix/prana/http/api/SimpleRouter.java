@@ -21,7 +21,7 @@ public class SimpleRouter implements RequestHandler<ByteBuf, ByteBuf> {
         delegate = new SimpleUriRouter<>();
         delegate.addUri("/healthcheck",healthCheckHandler)
                 .addUri("/dynamicproperties", dynamicPropertiesHandler)
-                .addUriRegex("^/proxy.*", proxyHandler)
+                .addUri("/proxy", proxyHandler)
                 .addUri("/eureka/hosts", hostsHandler)
                 .addUri("/ping", pingHandler);
     }

@@ -44,12 +44,15 @@ public class ProxyHandler implements RequestHandler<ByteBuf, ByteBuf> {
     public Observable<Void> handle(final HttpServerRequest<ByteBuf> serverRequest, final HttpServerResponse<ByteBuf> serverResponse) {
         String vip = Utils.forQueryParam(serverRequest.getQueryParameters(), "vip");
         String path = Utils.forQueryParam(serverRequest.getQueryParameters(), "path");
-        if(vip.equalsIgnoreCase("")) {
+        if(Strings.isNullOrEmpty(vip)) {
             serverResponse.getHeaders().set("Content-Type", "application/xml");
             serverResponse.writeString(ERROR_RESPONSE);
             logger.error("VIP is empty");
             return serverResponse.close();
+        }
 
+        if(path == null) {
+            path = "";
         }
 
         final LoadBalancingHttpClient<ByteBuf, ByteBuf> client = getClient(vip);

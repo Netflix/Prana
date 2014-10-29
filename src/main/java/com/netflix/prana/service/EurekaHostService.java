@@ -14,6 +14,7 @@ public class EurekaHostService implements HostService {
     public EurekaHostService(DiscoveryClient discoveryClient) {
         this.discoveryClient = discoveryClient;
     }
+
     @Override
     public List<InstanceInfo> getHosts(String appName) {
         return discoveryClient.getApplication(appName).getInstances();
