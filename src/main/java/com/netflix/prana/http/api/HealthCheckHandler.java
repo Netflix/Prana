@@ -30,6 +30,7 @@ public class HealthCheckHandler implements RequestHandler<ByteBuf, ByteBuf> {
         String externalHealthCheckURL = DynamicProperty.getInstance("prana.host.healthcheck.url").getString("http://localhost:7001/healthcheck");
         serverResponse.getHeaders().add("Content-Type", "application/xml");
         if (Strings.isNullOrEmpty(externalHealthCheckURL)) {
+            serverResponse.setStatus(HttpResponseStatus.OK);
             serverResponse.writeBytes("<health>ok</health>".getBytes());
             return serverResponse.close();
         }
@@ -38,15 +39,18 @@ public class HealthCheckHandler implements RequestHandler<ByteBuf, ByteBuf> {
             @Override
             public Observable<Void> call(HttpClientResponse<ByteBuf> response) {
                 if (response.getStatus().code() == HttpResponseStatus.OK.code()) {
+                    serverResponse.setStatus(HttpResponseStatus.OK);
                     serverResponse.writeBytes("<health>ok</health>".getBytes());
                     return serverResponse.close();
                 }
+                serverResponse.setStatus(HttpResponseStatus.SERVICE_UNAVAILABLE);
                 serverResponse.writeBytes("<health>fail</health>".getBytes());
                 return serverResponse.close();
             }
         }).onErrorFlatMap(new Func1<OnErrorThrowable, Observable<Void>>() {
             @Override
             public Observable<Void> call(OnErrorThrowable onErrorThrowable) {
+                serverResponse.setStatus(HttpResponseStatus.SERVICE_UNAVAILABLE);
                 serverResponse.writeBytes("<health>fail</health>".getBytes());
                 return serverResponse.close();
             }
