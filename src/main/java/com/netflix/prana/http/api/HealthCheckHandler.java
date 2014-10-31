@@ -4,9 +4,8 @@ import com.google.common.base.Strings;
 import com.netflix.config.DynamicProperty;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelOption;
-import io.netty.handler.logging.LogLevel;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.reactivex.netty.RxNetty;
-import io.reactivex.netty.pipeline.PipelineConfigurator;
 import io.reactivex.netty.pipeline.PipelineConfigurators;
 import io.reactivex.netty.protocol.http.client.HttpClient;
 import io.reactivex.netty.protocol.http.client.HttpClientRequest;
@@ -23,6 +22,10 @@ import java.net.URL;
 
 public class HealthCheckHandler implements RequestHandler<ByteBuf, ByteBuf> {
 
+    private final int DEFAULT_APPLICATION_PORT = DynamicProperty.getInstance("DEFAULT_APPLICATION_PORT").getInteger(7101);
+
+    private final int DEFAULT_CONNECTION_TIMEOUT = DynamicProperty.getInstance("DEFAULT_CONNECTION_TIMEOUT").getInteger(2000);
+
     public Observable<Void> handle(HttpServerRequest<ByteBuf> serverRequest, final HttpServerResponse<ByteBuf> serverResponse) {
         String externalHealthCheckURL = DynamicProperty.getInstance("prana.host.healthcheck.url").getString("http://localhost:7001/healthcheck");
         serverResponse.getHeaders().add("Content-Type", "application/xml");
@@ -34,7 +37,7 @@ public class HealthCheckHandler implements RequestHandler<ByteBuf, ByteBuf> {
         return getResponse(externalHealthCheckURL).flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<Void>>() {
             @Override
             public Observable<Void> call(HttpClientResponse<ByteBuf> response) {
-                if (response.getStatus().code() == 200) {
+                if (response.getStatus().code() == HttpResponseStatus.OK.code()) {
                     serverResponse.writeBytes("<health>ok</health>".getBytes());
                     return serverResponse.close();
                 }
@@ -52,7 +55,7 @@ public class HealthCheckHandler implements RequestHandler<ByteBuf, ByteBuf> {
 
     private Observable<HttpClientResponse<ByteBuf>> getResponse(String externalHealthCheckURL) {
         String host = "localhost";
-        int port = 7101;
+        int port = DEFAULT_APPLICATION_PORT;
         String path = "/healthcheck";
         try {
             URL url = new URL(externalHealthCheckURL);
@@ -64,7 +67,7 @@ public class HealthCheckHandler implements RequestHandler<ByteBuf, ByteBuf> {
         }
         HttpClient<ByteBuf, ByteBuf> httpClient = RxNetty.<ByteBuf, ByteBuf>newHttpClientBuilder(host, port)
                 .pipelineConfigurator(PipelineConfigurators.<ByteBuf, ByteBuf>httpClientConfigurator())
-                .channelOption(ChannelOption.CONNECT_TIMEOUT_MILLIS, 2000)
+                .channelOption(ChannelOption.CONNECT_TIMEOUT_MILLIS, DEFAULT_CONNECTION_TIMEOUT)
                 .build();
         return httpClient.submit(HttpClientRequest.createGet(path));
 

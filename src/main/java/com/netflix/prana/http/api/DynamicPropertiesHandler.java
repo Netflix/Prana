@@ -10,7 +10,6 @@ import io.reactivex.netty.protocol.http.server.HttpServerResponse;
 import io.reactivex.netty.protocol.http.server.RequestHandler;
 import rx.Observable;
 
-import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +25,7 @@ public class DynamicPropertiesHandler implements RequestHandler<ByteBuf, ByteBuf
     public DynamicPropertiesHandler() {
         this.objectMapper = new ObjectMapper();
     }
+
     @Override
     public Observable<Void> handle(HttpServerRequest<ByteBuf> request, HttpServerResponse<ByteBuf> response) {
         response.getHeaders().add("Content-Type", "application/json");

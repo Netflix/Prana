@@ -12,7 +12,7 @@ import org.kohsuke.args4j.CmdLineParser;
 
 public class Main {
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         PranaConfig pranaConfig = new PranaConfig();
         CmdLineParser cmdLineParser = new CmdLineParser(pranaConfig);
         try {

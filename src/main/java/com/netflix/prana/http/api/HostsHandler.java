@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.DiscoveryClient;
 import com.netflix.prana.service.HostService;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -27,7 +26,7 @@ public class HostsHandler implements RequestHandler<ByteBuf, ByteBuf> {
 
     private final ObjectMapper objectMapper;
 
-    private HostService hostService;
+    private final HostService hostService;
 
     @Inject
     public HostsHandler(HostService hostService) {

@@ -44,14 +44,16 @@ public class DynamicPropertiesHandlerTest {
         ConfigurationManager.getConfigInstance().setProperty("foo", "bar");
         ConfigurationManager.getConfigInstance().setProperty("lol", 10);
         HttpClientRequest<ByteBuf> request = HttpClientRequest.<ByteBuf>createGet("/dynamicproperties?id=foo&id=lol");
-        assertEquals("{\"lol\":\"10\",\"foo\":\"bar\"}", TestUtils.getResponse(request, client));
+        String response = TestUtils.getResponse(request, client);
+        assertTrue(response.contains("\"lol\":\"10\""));
+        assertTrue(response.contains("\"foo\":\"bar\""));
     }
 
 
     @Test
     public void shouldReturnNullForUnknownProperties() {
         HttpClientRequest<ByteBuf> request = HttpClientRequest.<ByteBuf>createGet("/dynamicproperties?id=bar");
-        assertEquals("[null]", TestUtils.getResponse(request, client));
+        assertEquals("{\"bar\":null}", TestUtils.getResponse(request, client));
 
     }
 

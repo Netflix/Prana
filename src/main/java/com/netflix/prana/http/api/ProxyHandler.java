@@ -8,7 +8,6 @@ import com.netflix.niws.loadbalancer.DiscoveryEnabledNIWSServerList;
 import com.netflix.ribbon.transport.netty.RibbonTransport;
 import com.netflix.ribbon.transport.netty.http.LoadBalancingHttpClient;
 import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.http.HttpMethod;
 import io.reactivex.netty.protocol.http.client.HttpClientPipelineConfigurator;
 import io.reactivex.netty.protocol.http.client.HttpClientRequest;
 import io.reactivex.netty.protocol.http.client.HttpClientResponse;
@@ -22,8 +21,6 @@ import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,14 +41,14 @@ public class ProxyHandler implements RequestHandler<ByteBuf, ByteBuf> {
     public Observable<Void> handle(final HttpServerRequest<ByteBuf> serverRequest, final HttpServerResponse<ByteBuf> serverResponse) {
         String vip = Utils.forQueryParam(serverRequest.getQueryParameters(), "vip");
         String path = Utils.forQueryParam(serverRequest.getQueryParameters(), "path");
-        if(Strings.isNullOrEmpty(vip)) {
+        if (Strings.isNullOrEmpty(vip)) {
             serverResponse.getHeaders().set("Content-Type", "application/xml");
             serverResponse.writeString(ERROR_RESPONSE);
             logger.error("VIP is empty");
             return serverResponse.close();
         }
 
-        if(path == null) {
+        if (path == null) {
             path = "";
         }
 
