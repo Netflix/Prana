@@ -58,11 +58,11 @@ dependencies {
     compile 'com.netflix.karyon:karyon-admin-web:2.1.00-RC5'
     compile 'com.netflix.blitz4j:blitz4j:1.35'
 
-    compile 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.3.0'
+    compile 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.3.3'
     compile 'com.fasterxml.jackson.core:jackson-core:2.3.3'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.3.3'
 
-    compile 'args4j:args4j:2.0.18'
+    compile 'args4j:args4j:2.0.28'
 
     testCompile 'junit:junit:4.11'
     testCompile 'org.mockito:mockito-all:1.9.5'
