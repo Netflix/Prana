@@ -22,31 +22,30 @@ buildscript {
         //mavenLocal() // Enable in local builds if needed. This causes build to fail when local repo is corrupted.
         mavenCentral() // maven { url 'http://jcenter.bintray.com' }
     }
-    apply from: file('gradle/buildscript.gradle'), to: buildscript 
+    apply from: file('gradle/buildscript.gradle'), to: buildscript
 }
 
-    repositories { 
-        //mavenLocal() // Enable in local builds if needed. This causes build to fail when local repo is corrupted.
-        mavenCentral() // maven { url: 'http://jcenter.bintray.com' }
+repositories {
+    //mavenLocal() // Enable in local builds if needed. This causes build to fail when local repo is corrupted.
+    mavenCentral() // maven { url: 'http://jcenter.bintray.com' }
+}
+tasks.withType(Javadoc) {
+    if (JavaVersion.current().isJava8Compatible()) {
+        options.addStringOption('Xdoclint:none', '-quiet')
     }
-    tasks.withType(Javadoc) {
-        if(JavaVersion.current().isJava8Compatible()) {
-            options.addStringOption('Xdoclint:none', '-quiet')
-        }
-    }
-
+}
+apply plugin: 'java'
 apply from: file('gradle/convention.gradle')
 apply from: file('gradle/maven.gradle')
 apply from: file('gradle/license.gradle')
 apply from: file('gradle/release.gradle')
 
 
-	apply plugin: 'java'
-	apply plugin: 'eclipse'
-	apply plugin: 'idea'
-	apply plugin:'application'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'application'
 
-    dependencies {
+dependencies {
     compile "org.slf4j:slf4j-api:${slf4j_version}"
 
     compile 'com.netflix.ribbon:ribbon:2.0-RC9'
@@ -59,15 +58,15 @@ apply from: file('gradle/release.gradle')
     compile 'com.netflix.karyon:karyon-admin-web:2.1.00-RC5'
     compile 'com.netflix.blitz4j:blitz4j:1.35'
 
-    compile 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.3.3'
+    compile 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.3.0'
     compile 'com.fasterxml.jackson.core:jackson-core:2.3.3'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.3.3'
 
-    compile 'args4j:args4j:2.0.28'
+    compile 'args4j:args4j:2.0.18'
 
     testCompile 'junit:junit:4.11'
     testCompile 'org.mockito:mockito-all:1.9.5'
-    }
+}
 
 test {
     testLogging {
