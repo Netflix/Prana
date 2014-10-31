@@ -12,6 +12,7 @@ import rx.Observable;
 
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,11 +29,11 @@ public class DynamicPropertiesHandler implements RequestHandler<ByteBuf, ByteBuf
     @Override
     public Observable<Void> handle(HttpServerRequest<ByteBuf> request, HttpServerResponse<ByteBuf> response) {
         response.getHeaders().add("Content-Type", "application/json");
-        List<String> properties = new ArrayList<>();
+        Map<String, String> properties = new HashMap<>();
         List<String> ids = forQueryParam(request.getQueryParameters(), "id");
         for (String id : ids) {
             String property = DynamicProperty.getInstance(id).getString(null);
-            properties.add(property);
+            properties.put(id, property);
         }
         try {
             response.writeBytes(objectMapper.writeValueAsBytes(properties));

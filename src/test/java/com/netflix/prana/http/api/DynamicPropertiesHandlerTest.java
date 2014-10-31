@@ -42,8 +42,9 @@ public class DynamicPropertiesHandlerTest {
     @Test
     public void shouldReturnListOfProperties() {
         ConfigurationManager.getConfigInstance().setProperty("foo", "bar");
-        HttpClientRequest<ByteBuf> request = HttpClientRequest.<ByteBuf>createGet("/dynamicproperties?id=foo");
-        assertEquals("[\"bar\"]", TestUtils.getResponse(request, client));
+        ConfigurationManager.getConfigInstance().setProperty("lol", 10);
+        HttpClientRequest<ByteBuf> request = HttpClientRequest.<ByteBuf>createGet("/dynamicproperties?id=foo&id=lol");
+        assertEquals("{\"lol\":\"10\",\"foo\":\"bar\"}", TestUtils.getResponse(request, client));
     }
 
 
