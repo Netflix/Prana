@@ -1,5 +1,8 @@
-NetflixOSS SideCar
-----------------------
+<!--
+# Prana
+-->
+![](images/Prana.png?raw=true =150x150)
 
-The Netflix OSS Sidecar project.
+
+**Prana** - Making it easy to integrate with NetflixOSS services.
 
