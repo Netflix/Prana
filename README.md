@@ -4,7 +4,7 @@
 ![](images/Prana_Small.png?raw=true =150x150)
 
 
-**Prana** - Making it easy to integrate with NetflixOSS services.
+**Prana** - Making it easy to integrate with NetflixOSS services. Prana exposes Java based client libraries of various services like Eureka, Ribbon, Archaius over HTTP. It makes it easy for applications especially written in Non-JVM languages exist in the NetflixOSS eco-system.
 
 
 ## Build
@@ -15,7 +15,7 @@ We use Gradle for building
 ./gradlew build
 ```
 
-We use the standard Gradle application plugin to build the appliation binary
+We use the standard Gradle application plugin to build a deployable artifact of Prana
 
 ```
 ./gradlew distZip
@@ -23,7 +23,7 @@ We use the standard Gradle application plugin to build the appliation binary
 
 ## Documentation
 
-Please see [wiki] (https://github.com/Netflix/Prana/wiki) for detailed documentation.
+Please visit the [wiki] (https://github.com/Netflix/Prana/wiki) for detailed documentation.
 
 ## License
 
