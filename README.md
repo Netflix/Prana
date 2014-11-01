@@ -25,6 +25,11 @@ We use the standard Gradle application plugin to build a deployable artifact of 
 
 Please visit the [wiki] (https://github.com/Netflix/Prana/wiki) for detailed documentation.
 
+## Contributions
+
+Please use the [GitHub Issues] (https://github.com/netflix/Prana/issues) for requests.
+We actively welcome pull requests.
+
 ## License
 
 Copyright 2014 Netflix, Inc.
