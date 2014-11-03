@@ -20,6 +20,7 @@ tasks.withType(Javadoc) {
     }
 }
 apply plugin: 'java'
+
 apply from: file('gradle/convention.gradle')
 apply from: file('gradle/maven.gradle')
 apply from: file('gradle/license.gradle')
@@ -30,6 +31,9 @@ apply from: file('gradle/release.gradle')
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'application'
+
+sourceCompatibility = '1.7'
+targetCompatibility = '1.7'
 
 dependencies {
     compile "org.slf4j:slf4j-api:${slf4j_version}"
