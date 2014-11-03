@@ -1,12 +1,11 @@
 // Maven side of things
-subprojects {
-    apply plugin: 'maven' // Java plugin has to have been already applied for the conf2scope mappings to work
-    apply plugin: 'signing'
+apply plugin: 'maven' // Java plugin has to have been already applied for the conf2scope mappings to work
+apply plugin: 'signing'
 
-    signing {
-        required { gradle.taskGraph.hasTask(uploadMavenCentral) }
-        sign configurations.archives
-    }
+signing {
+    required { gradle.taskGraph.hasTask(uploadMavenCentral) }
+    sign configurations.archives
+}
 
 /**
  * Publishing to Maven Central example provided from http://jedicoder.blogspot.com/2011/11/automated-gradle-project-deployment-to.html
@@ -19,8 +18,8 @@ task uploadMavenCentral(type:Upload, dependsOn: signArchives) {
         repositories.mavenDeployer {
             beforeDeployment { signing.signPom(it) }
 
-                // To test deployment locally, use the following instead of oss.sonatype.org
-                //repository(url: "file://localhost/${rootProject.rootDir}/repo")
+            // To test deployment locally, use the following instead of oss.sonatype.org
+            //repository(url: "file://localhost/${rootProject.rootDir}/repo")
 
             def sonatypeUsername = rootProject.hasProperty('sonatypeUsername')?rootProject.sonatypeUsername:''
             def sonatypePassword = rootProject.hasProperty('sonatypePassword')?rootProject.sonatypePassword:''
@@ -65,6 +64,5 @@ task uploadMavenCentral(type:Upload, dependsOn: signArchives) {
                         url "https://github.com/Netflix/${rootProject.githubProjectName}/issues"
                     }
                 }
-            }
         }
 }
