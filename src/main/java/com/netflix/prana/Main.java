@@ -57,7 +57,8 @@ public class Main {
                 properties.load(fileInputStream);
                 ConfigurationManager.loadProperties(properties);
             } catch (FileNotFoundException fox) {
-                logger.error("Config file " + pranaConfig.getConfigFile() + " is not present");
+                logger.error(String.format("Config file %s is not present, loading default properties present in classpath",
+                        pranaConfig.getConfigFile()));
             }
             DeploymentContext deploymentContext = ConfigurationManager.getDeploymentContext();
             deploymentContext.setApplicationId(pranaConfig.getAppName());
