@@ -24,6 +24,9 @@ public class PranaConfig {
     
     @Option(name = "-a", aliases = "--app-name", usage = "Parent host application name")
     private String appName = "prana";
+
+    @Option(name = "-c", aliases = "--config", usage = "Prana configuration file")
+    private String configFile = "prana.properties";
     
     public int getHttpPort() {
         return httpPort;
@@ -33,4 +36,7 @@ public class PranaConfig {
         return appName;
     }
 
+    public String getConfigFile() {
+        return configFile;
+    }
 }

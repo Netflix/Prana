@@ -16,6 +16,8 @@
 package com.netflix.prana;
 
 import com.google.inject.Injector;
+import com.netflix.config.ConfigurationManager;
+import com.netflix.config.DeploymentContext;
 import com.netflix.governator.guice.LifecycleInjector;
 import com.netflix.governator.lifecycle.LifecycleManager;
 import com.netflix.karyon.KaryonServer;
@@ -24,8 +26,16 @@ import com.netflix.prana.http.api.HandlersModule;
 import com.netflix.prana.service.ServiceModule;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.Properties;
 
 public class Main {
+
+    private static Logger logger = LoggerFactory.getLogger(Main.class);
 
     public static void main(String[] args) {
         PranaConfig pranaConfig = new PranaConfig();
@@ -41,14 +51,24 @@ public class Main {
 
         try {
             MainModule sm = new MainModule(pranaConfig);
-            @SuppressWarnings("deprecation")
-            Injector injector = LifecycleInjector.builder().withModules(sm, new ServiceModule(), new HandlersModule()).createInjector();
+            try {
+                FileInputStream fileInputStream = new FileInputStream(pranaConfig.getConfigFile());
+                Properties properties = new Properties();
+                properties.load(fileInputStream);
+                ConfigurationManager.loadProperties(properties);
+            } catch (FileNotFoundException fox) {
+                logger.error("Config file " + pranaConfig.getConfigFile() + " is not present");
+            }
+            DeploymentContext deploymentContext = ConfigurationManager.getDeploymentContext();
+            deploymentContext.setApplicationId(pranaConfig.getAppName());
+            Injector injector = LifecycleInjector.builder().withModules(sm, new ServiceModule(), new HandlersModule()).build().createInjector();
             LifecycleManager manager = injector.getInstance(LifecycleManager.class);
             manager.start();
+
             KaryonServer karyonServer = injector.getInstance(KaryonServer.class);
             karyonServer.startAndWaitTillShutdown();
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            logger.error(e.getMessage());
             System.exit(1);
         }
     }
