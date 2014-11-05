@@ -37,9 +37,9 @@ import java.net.URL;
 
 public class HealthCheckHandler implements RequestHandler<ByteBuf, ByteBuf> {
 
-    private final int DEFAULT_APPLICATION_PORT = DynamicProperty.getInstance("DEFAULT_APPLICATION_PORT").getInteger(7101);
+    private final int DEFAULT_APPLICATION_PORT = 7101;
 
-    private final int DEFAULT_CONNECTION_TIMEOUT = DynamicProperty.getInstance("DEFAULT_CONNECTION_TIMEOUT").getInteger(2000);
+    private final int DEFAULT_CONNECTION_TIMEOUT = 2000;
 
     public Observable<Void> handle(HttpServerRequest<ByteBuf> serverRequest, final HttpServerResponse<ByteBuf> serverResponse) {
         String externalHealthCheckURL = DynamicProperty.getInstance("prana.host.healthcheck.url").getString("http://localhost:7001/healthcheck");
@@ -84,9 +84,10 @@ public class HealthCheckHandler implements RequestHandler<ByteBuf, ByteBuf> {
         } catch (MalformedURLException e) {
             //continue
         }
+        Integer timeout = DynamicProperty.getInstance("prana.host.healthcheck.timeout").getInteger(DEFAULT_CONNECTION_TIMEOUT);
         HttpClient<ByteBuf, ByteBuf> httpClient = RxNetty.<ByteBuf, ByteBuf>newHttpClientBuilder(host, port)
                 .pipelineConfigurator(PipelineConfigurators.<ByteBuf, ByteBuf>httpClientConfigurator())
-                .channelOption(ChannelOption.CONNECT_TIMEOUT_MILLIS, DEFAULT_CONNECTION_TIMEOUT)
+                .channelOption(ChannelOption.CONNECT_TIMEOUT_MILLIS, timeout)
                 .build();
         return httpClient.submit(HttpClientRequest.createGet(path));
 

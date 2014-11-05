@@ -45,7 +45,7 @@ public class ProxyHandler implements RequestHandler<ByteBuf, ByteBuf> {
 
     private static final ConcurrentHashMap<String, LoadBalancingHttpClient<ByteBuf, ByteBuf>> httpClients = new ConcurrentHashMap<>();
 
-    private final String PROXY_REQ_ACCEPT_ENCODING = DynamicProperty.getInstance("zuul.proxy.req.acceptencoding").getString("deflate, gzip");
+    private final String PROXY_REQ_ACCEPT_ENCODING = DynamicProperty.getInstance("prana.proxy.req.acceptencoding").getString("deflate, gzip");
 
     private Logger logger = LoggerFactory.getLogger(getClass().getName());
 
