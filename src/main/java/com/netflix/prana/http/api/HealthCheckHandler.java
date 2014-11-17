@@ -15,8 +15,10 @@
  */
 package com.netflix.prana.http.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.netflix.config.DynamicProperty;
+import com.netflix.prana.http.Context;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -25,51 +27,56 @@ import io.reactivex.netty.pipeline.PipelineConfigurators;
 import io.reactivex.netty.protocol.http.client.HttpClient;
 import io.reactivex.netty.protocol.http.client.HttpClientRequest;
 import io.reactivex.netty.protocol.http.client.HttpClientResponse;
-import io.reactivex.netty.protocol.http.server.HttpServerRequest;
-import io.reactivex.netty.protocol.http.server.HttpServerResponse;
-import io.reactivex.netty.protocol.http.server.RequestHandler;
 import rx.Observable;
 import rx.exceptions.OnErrorThrowable;
 import rx.functions.Func1;
 
+import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class HealthCheckHandler implements RequestHandler<ByteBuf, ByteBuf> {
+public class HealthCheckHandler extends AbstractRequestHandler {
+    private static final String DEFAULT_CONTENT_TYPE = "application/xml";
+    private static final Observable<Void> DEFAULT_NOOP_RESPONSE = Observable.just(null);
 
-    private final int DEFAULT_APPLICATION_PORT = 7101;
+    public static final int DEFAULT_APPLICATION_PORT = 7101;
+    public static final int DEFAULT_CONNECTION_TIMEOUT = 2000;
+    public static final String DEFAULT_HEALTHCHECK_ENDPOINT = "http://localhost:7001/healthcheck";
+    public static final String DEFAULT_OK_HEALTH = "<health>ok</health>";
+    public static final String DEFAULT_FAIL_HEALTH = "<health>fail</health>";
 
-    private final int DEFAULT_CONNECTION_TIMEOUT = 2000;
 
-    public Observable<Void> handle(HttpServerRequest<ByteBuf> serverRequest, final HttpServerResponse<ByteBuf> serverResponse) {
-        String externalHealthCheckURL = DynamicProperty.getInstance("prana.host.healthcheck.url").getString("http://localhost:7001/healthcheck");
-        serverResponse.getHeaders().add("Content-Type", "application/xml");
+    @Inject
+    public HealthCheckHandler(ObjectMapper objectMapper) {
+        super(objectMapper);
+    }
+
+    @Override
+    void handle(final Context context) {
+        String externalHealthCheckURL = DynamicProperty.getInstance("prana.host.healthcheck.url")
+                .getString(DEFAULT_HEALTHCHECK_ENDPOINT);
+        context.setHeader("Content-type", DEFAULT_CONTENT_TYPE);
         if (Strings.isNullOrEmpty(externalHealthCheckURL)) {
-            serverResponse.setStatus(HttpResponseStatus.OK);
-            serverResponse.writeBytes("<health>ok</health>".getBytes());
-            return serverResponse.close();
-        }
-
-        return getResponse(externalHealthCheckURL).flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<Void>>() {
-            @Override
-            public Observable<Void> call(HttpClientResponse<ByteBuf> response) {
-                if (response.getStatus().code() == HttpResponseStatus.OK.code()) {
-                    serverResponse.setStatus(HttpResponseStatus.OK);
-                    serverResponse.writeBytes("<health>ok</health>".getBytes());
-                    return serverResponse.close();
+            context.sendSimple(DEFAULT_OK_HEALTH);
+        } else {
+            getResponse(externalHealthCheckURL).flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<Void>>() {
+                @Override
+                public Observable<Void> call(HttpClientResponse<ByteBuf> response) {
+                    if (response.getStatus().code() == HttpResponseStatus.OK.code()) {
+                        context.sendSimple(DEFAULT_OK_HEALTH);
+                    } else {
+                        context.sendError(HttpResponseStatus.SERVICE_UNAVAILABLE, DEFAULT_FAIL_HEALTH);
+                    }
+                    return DEFAULT_NOOP_RESPONSE;
                 }
-                serverResponse.setStatus(HttpResponseStatus.SERVICE_UNAVAILABLE);
-                serverResponse.writeBytes("<health>fail</health>".getBytes());
-                return serverResponse.close();
-            }
-        }).onErrorFlatMap(new Func1<OnErrorThrowable, Observable<Void>>() {
-            @Override
-            public Observable<Void> call(OnErrorThrowable onErrorThrowable) {
-                serverResponse.setStatus(HttpResponseStatus.SERVICE_UNAVAILABLE);
-                serverResponse.writeBytes("<health>fail</health>".getBytes());
-                return serverResponse.close();
-            }
-        });
+            }).onErrorFlatMap(new Func1<OnErrorThrowable, Observable<Void>>() {
+                @Override
+                public Observable<Void> call(OnErrorThrowable onErrorThrowable) {
+                    context.sendError(HttpResponseStatus.SERVICE_UNAVAILABLE, DEFAULT_FAIL_HEALTH);
+                    return DEFAULT_NOOP_RESPONSE;
+                }
+            }).subscribe();
+        }
     }
 
     private Observable<HttpClientResponse<ByteBuf>> getResponse(String externalHealthCheckURL) {

@@ -15,18 +15,25 @@
  */
 package com.netflix.prana.http.api;
 
-import io.netty.buffer.ByteBuf;
-import io.reactivex.netty.protocol.http.server.HttpServerRequest;
-import io.reactivex.netty.protocol.http.server.HttpServerResponse;
-import io.reactivex.netty.protocol.http.server.RequestHandler;
-import rx.Observable;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netflix.prana.http.Context;
 
-public class PingHandler implements RequestHandler<ByteBuf, ByteBuf> {
+import javax.inject.Inject;
+
+public class PingHandler extends AbstractRequestHandler {
+
+    private static final String CACHE_CONTROL_HEADER = "Cache-Control";
+    private static final String CACHE_CONTROL_HEADER_VAL = "must-revalidate,no-cache,no-store";
+    private static final String DEFAULT_PONG_RESPONSE = "pong";
+
+    @Inject
+    public PingHandler(ObjectMapper objectMapper) {
+        super(objectMapper);
+    }
 
     @Override
-    public Observable<Void> handle(HttpServerRequest<ByteBuf> request, HttpServerResponse<ByteBuf> response) {
-        response.getHeaders().set("Cache-Control", "must-revalidate,no-cache,no-store");
-        response.writeString("pong");
-        return response.close();
+    void handle(Context context) {
+        context.setHeader(CACHE_CONTROL_HEADER, CACHE_CONTROL_HEADER_VAL);
+        context.sendSimple(DEFAULT_PONG_RESPONSE);
     }
 }

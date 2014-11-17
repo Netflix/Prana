@@ -32,13 +32,14 @@ public class SimpleRouter implements RequestHandler<ByteBuf, ByteBuf> {
 
     @Inject
     public SimpleRouter(ProxyHandler proxyHandler, HealthCheckHandler healthCheckHandler, HostsHandler hostsHandler,
-                        PingHandler pingHandler, DynamicPropertiesHandler dynamicPropertiesHandler) {
+                        PingHandler pingHandler, DynamicPropertiesHandler dynamicPropertiesHandler, StatusHandler statusHandler) {
         delegate = new SimpleUriRouter<>();
         delegate.addUri("/healthcheck", healthCheckHandler)
                 .addUri("/dynamicproperties", dynamicPropertiesHandler)
                 .addUri("/proxy", proxyHandler)
                 .addUri("/eureka/hosts", hostsHandler)
-                .addUri("/ping", pingHandler);
+                .addUri("/ping", pingHandler)
+                .addUri("/status", statusHandler);
     }
 
     @Override

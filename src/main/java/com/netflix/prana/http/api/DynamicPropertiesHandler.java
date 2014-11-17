@@ -15,17 +15,11 @@
  */
 package com.netflix.prana.http.api;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.config.DynamicProperty;
-import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.reactivex.netty.protocol.http.server.HttpServerRequest;
-import io.reactivex.netty.protocol.http.server.HttpServerResponse;
-import io.reactivex.netty.protocol.http.server.RequestHandler;
-import rx.Observable;
+import com.netflix.prana.http.Context;
 
-import java.util.ArrayList;
+import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,38 +27,23 @@ import java.util.Map;
 /**
  * Created by dchoudhury on 10/20/14.
  */
-public class DynamicPropertiesHandler implements RequestHandler<ByteBuf, ByteBuf> {
+public class DynamicPropertiesHandler extends AbstractRequestHandler {
 
-    private final ObjectMapper objectMapper;
+    private static final String ID_QUERY_PARAMETER = "id";
 
-    public DynamicPropertiesHandler() {
-        this.objectMapper = new ObjectMapper();
+    @Inject
+    public DynamicPropertiesHandler(ObjectMapper objectMapper) {
+        super(objectMapper);
     }
 
     @Override
-    public Observable<Void> handle(HttpServerRequest<ByteBuf> request, HttpServerResponse<ByteBuf> response) {
-        response.getHeaders().add("Content-Type", "application/json");
+    void handle(Context context) {
         Map<String, String> properties = new HashMap<>();
-        List<String> ids = forQueryParam(request.getQueryParameters(), "id");
+        List<String> ids = context.getQueryParams(ID_QUERY_PARAMETER);
         for (String id : ids) {
             String property = DynamicProperty.getInstance(id).getString(null);
             properties.put(id, property);
         }
-        try {
-            response.writeBytes(objectMapper.writeValueAsBytes(properties));
-            return response.close();
-        } catch (JsonProcessingException e) {
-            response.setStatus(HttpResponseStatus.INTERNAL_SERVER_ERROR);
-            return response.close();
-        }
+        context.send(properties);
     }
-
-    private List<String> forQueryParam(Map<String, List<String>> queryParams, String paramName) {
-        List<String> values = queryParams.get(paramName);
-        if (values == null) {
-            return new ArrayList<>(1);
-        }
-        return values;
-    }
-
 }

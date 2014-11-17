@@ -25,6 +25,7 @@ public class HandlersModule extends AbstractModule {
 
     @Override
     protected void configure() {
+        bind(StatusHandler.class).in(Scopes.SINGLETON);
         bind(SimpleRouter.class).in(Scopes.SINGLETON);
         bind(ProxyHandler.class).in(Scopes.SINGLETON);
         bind(HealthCheckHandler.class).in(Scopes.SINGLETON);
