@@ -18,6 +18,7 @@ package com.netflix.prana.http.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.config.DynamicProperty;
 import com.netflix.prana.http.Context;
+import rx.Observable;
 
 import javax.inject.Inject;
 import java.util.HashMap;
@@ -37,13 +38,13 @@ public class DynamicPropertiesHandler extends AbstractRequestHandler {
     }
 
     @Override
-    void handle(Context context) {
+    Observable<Void> handle(Context context) {
         Map<String, String> properties = new HashMap<>();
         List<String> ids = context.getQueryParams(ID_QUERY_PARAMETER);
         for (String id : ids) {
             String property = DynamicProperty.getInstance(id).getString(null);
             properties.put(id, property);
         }
-        context.send(properties);
+        return context.send(properties);
     }
 }

@@ -17,6 +17,7 @@
 package com.netflix.prana.http;
 
 import io.netty.handler.codec.http.HttpResponseStatus;
+import rx.Observable;
 
 import java.util.List;
 
@@ -30,14 +31,14 @@ public interface Context {
      *
      * @param object response object
      */
-    void send(Object object);
+    Observable<Void> send(Object object);
 
     /**
      * Sends a simple text message back through the response stream
      *
      * @param message the message to deliver
      */
-    void sendSimple(String message);
+    Observable<Void> sendSimple(String message);
 
     /**
      * Serializes a simple error message back to the response using the supplied status code
@@ -45,7 +46,7 @@ public interface Context {
      * @param status the status code for the response
      * @param message the message to send back to the caller
      */
-    void sendError(HttpResponseStatus status, String message);
+    Observable<Void> sendError(HttpResponseStatus status, String message);
 
     /**
      * Retrieves the value of the specified header

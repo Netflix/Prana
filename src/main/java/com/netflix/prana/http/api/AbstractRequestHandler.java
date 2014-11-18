@@ -33,12 +33,11 @@ public abstract class AbstractRequestHandler implements RequestHandler<ByteBuf, 
         this.objectMapper = objectMapper;
     }
 
-    abstract void handle(Context context);
+    abstract Observable<Void> handle(Context context);
 
     @Override
     public Observable<Void> handle(HttpServerRequest<ByteBuf> request, final HttpServerResponse<ByteBuf> response) {
         DefaultContext context = new DefaultContext(request, response, objectMapper);
-        handle(context);
-        return context.getResponseSubject();
+        return handle(context);
     }
 }

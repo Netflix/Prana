@@ -17,6 +17,7 @@ package com.netflix.prana.http.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.prana.http.Context;
+import rx.Observable;
 
 import javax.inject.Inject;
 
@@ -32,8 +33,8 @@ public class PingHandler extends AbstractRequestHandler {
     }
 
     @Override
-    void handle(Context context) {
+    Observable<Void> handle(Context context) {
         context.setHeader(CACHE_CONTROL_HEADER, CACHE_CONTROL_HEADER_VAL);
-        context.sendSimple(DEFAULT_PONG_RESPONSE);
+        return context.sendSimple(DEFAULT_PONG_RESPONSE);
     }
 }
