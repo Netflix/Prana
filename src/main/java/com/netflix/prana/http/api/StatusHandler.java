@@ -13,37 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.netflix.prana.http.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.netflix.config.DynamicProperty;
+import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.prana.http.Context;
 
 import javax.inject.Inject;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
- * Created by dchoudhury on 10/20/14.
+ * A request handler to return the application's status in Discovery
  */
-public class DynamicPropertiesHandler extends AbstractRequestHandler {
+public class StatusHandler extends AbstractRequestHandler {
 
-    private static final String ID_QUERY_PARAMETER = "id";
+    private final ApplicationInfoManager applicationInfoManager;
 
     @Inject
-    public DynamicPropertiesHandler(ObjectMapper objectMapper) {
+    public StatusHandler(ObjectMapper objectMapper, ApplicationInfoManager applicationInfoManager) {
         super(objectMapper);
+        this.applicationInfoManager = applicationInfoManager;
     }
 
     @Override
     void handle(Context context) {
-        Map<String, String> properties = new HashMap<>();
-        List<String> ids = context.getQueryParams(ID_QUERY_PARAMETER);
-        for (String id : ids) {
-            String property = DynamicProperty.getInstance(id).getString(null);
-            properties.put(id, property);
-        }
-        context.send(properties);
+        Map<String, String> status = new HashMap<String, String>() {{
+            put("status", applicationInfoManager.getInfo().getStatus().name());
+        }};
+        context.send(status);
     }
 }
