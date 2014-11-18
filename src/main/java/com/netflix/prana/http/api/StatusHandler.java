@@ -19,6 +19,7 @@ package com.netflix.prana.http.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.prana.http.Context;
+import rx.Observable;
 
 import javax.inject.Inject;
 import java.util.HashMap;
@@ -38,10 +39,10 @@ public class StatusHandler extends AbstractRequestHandler {
     }
 
     @Override
-    void handle(Context context) {
+    Observable<Void> handle(Context context) {
         Map<String, String> status = new HashMap<String, String>() {{
             put("status", applicationInfoManager.getInfo().getStatus().name());
         }};
-        context.send(status);
+        return context.send(status);
     }
 }

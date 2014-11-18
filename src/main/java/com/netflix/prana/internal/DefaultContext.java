@@ -25,8 +25,6 @@ import io.reactivex.netty.protocol.http.server.HttpRequestHeaders;
 import io.reactivex.netty.protocol.http.server.HttpServerRequest;
 import io.reactivex.netty.protocol.http.server.HttpServerResponse;
 import rx.Observable;
-import rx.functions.Action1;
-import rx.subjects.ReplaySubject;
 
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
@@ -41,8 +39,6 @@ public class DefaultContext implements Context {
     private final HttpRequestHeaders requestHeaders;
     private final Map<String, List<String>> queryParameters;
     private final ObjectMapper objectMapper;
-
-    private ReplaySubject<Void> responseSubject = ReplaySubject.create();
 
     public DefaultContext(HttpServerRequest<ByteBuf> request, HttpServerResponse<ByteBuf> response, ObjectMapper objectMapper) {
         this.response = response;
@@ -74,36 +70,32 @@ public class DefaultContext implements Context {
     }
 
     @Override
-    public void send(Object object) {
-        sendJson(object);
+    public Observable<Void> send(Object object) {
+        return sendJson(object);
     }
 
     @Override
-    public void sendSimple(String message) {
+    public Observable<Void> sendSimple(String message) {
         setOk();
         response.writeString(message);
-        doClose(response.close());
+        return response.close();
     }
 
     @Override
-    public void sendError(final HttpResponseStatus status, final String message) {
+    public Observable<Void> sendError(final HttpResponseStatus status, final String message) {
         Map<String, String> messageObject = new HashMap<String, String>() {{
             put("reason", status.reasonPhrase());
             put("message", message);
         }};
 
-        sendJson(messageObject);
-    }
-
-    public Observable<Void> getResponseSubject() {
-        return responseSubject;
+        return sendJson(messageObject);
     }
 
     private void setOk() {
         response.setStatus(HttpResponseStatus.OK);
     }
 
-    private void sendJson(Object object) {
+    private Observable<Void> sendJson(Object object) {
         byte[] bytes = new byte[0];
         try {
             setOk();
@@ -122,16 +114,6 @@ public class DefaultContext implements Context {
         } else {
             response.writeString(ULTIMATE_FAILURE_STRING);
         }
-        doClose(response.close());
+        return response.close();
     }
-
-    private void doClose(Observable<Void> response) {
-        response.subscribe(new Action1<Void>() {
-            @Override
-            public void call(Void resp) {
-                responseSubject.onNext(resp);
-            }
-        });
-    }
-
 }
