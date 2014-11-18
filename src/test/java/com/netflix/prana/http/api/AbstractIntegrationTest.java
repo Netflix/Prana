@@ -27,18 +27,19 @@ import io.reactivex.netty.protocol.http.server.RequestHandler;
 import org.junit.After;
 import org.junit.Before;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+
 public abstract class AbstractIntegrationTest {
     protected ObjectMapper objectMapper = new ObjectMapper();
     protected HttpServer<ByteBuf, ByteBuf> server;
     protected HttpClient<ByteBuf, ByteBuf> client;
 
-    private final int port = 23455;
-
-
     protected abstract RequestHandler<ByteBuf, ByteBuf> getHandler();
 
     @Before
     public void setUp() {
+        int port = getRandomPort();
         server = RxNetty.newHttpServerBuilder(port, getHandler())
                 .pipelineConfigurator(PipelineConfigurators.<ByteBuf, ByteBuf>httpServerConfigurator()).build();
         server.start();
@@ -52,5 +53,18 @@ public abstract class AbstractIntegrationTest {
     @After
     public void tearDown() throws InterruptedException {
         server.shutdown();
+    }
+
+    protected int getRandomPort() {
+        while (true) {
+            try {
+                ServerSocket sock = new ServerSocket(0);
+                int port = sock.getLocalPort();
+                sock.close();
+                return port;
+            } catch (IOException e) {
+                // try again!
+            }
+        }
     }
 }
