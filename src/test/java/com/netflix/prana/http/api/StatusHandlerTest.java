@@ -13,43 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.netflix.prana.http.api;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.InstanceInfo;
-import com.netflix.prana.service.HostService;
 import io.netty.buffer.ByteBuf;
 import io.reactivex.netty.protocol.http.client.HttpClientRequest;
 import io.reactivex.netty.protocol.http.server.RequestHandler;
-import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
-
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Created by dchoudhury on 10/28/14.
- */
-public class HostsHandlerTest extends AbstractIntegrationTest {
+public class StatusHandlerTest extends AbstractIntegrationTest {
 
-    private HostService hostService = mock(HostService.class);
+    private ApplicationInfoManager applicationInfoManager = mock(ApplicationInfoManager.class);
 
     @Override
     protected RequestHandler<ByteBuf, ByteBuf> getHandler() {
-        ArrayList<InstanceInfo> instanceInfos = new ArrayList<>();
-        instanceInfos.add(InstanceInfo.Builder.newBuilder().setAppName("foo").setVIPAddress("bar").setHostName("host1").build());
-        instanceInfos.add(InstanceInfo.Builder.newBuilder().setAppName("foo").setVIPAddress("bar").setHostName("host2").build());
-        when(hostService.getHosts("foo")).thenReturn(instanceInfos);
-        return new HostsHandler(hostService, new ObjectMapper());
+        return new StatusHandler(objectMapper, applicationInfoManager);
     }
 
     @Test
-    public void shouldReturnAListOfHostsWhenBothVipAndAppIsSpecified() {
-        HttpClientRequest<ByteBuf> request = HttpClientRequest.<ByteBuf>createGet("/hosts?appName=foo&vip=bar");
+    public void shouldReturnDiscoveryStatus() {
+        InstanceInfo outOfService = InstanceInfo.Builder.newBuilder()
+                .setAppName("foo")
+                .setStatus(InstanceInfo.InstanceStatus.OUT_OF_SERVICE).build();
+        when(applicationInfoManager.getInfo()).thenReturn(outOfService);
+        HttpClientRequest<ByteBuf> request = HttpClientRequest.<ByteBuf>createGet("/status");
         String response = TestUtils.getResponse(request, client);
-        Assert.assertEquals("[\"host1\",\"host2\"]", response);
+        assertTrue(response.contains("\"status\":\"OUT_OF_SERVICE\""));
     }
-
 }

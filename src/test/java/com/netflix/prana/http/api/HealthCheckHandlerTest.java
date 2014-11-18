@@ -1,11 +1,11 @@
-/**
+/*
  * Copyright 2014 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,54 +17,36 @@ package com.netflix.prana.http.api;
 
 import com.netflix.config.ConfigurationManager;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelOption;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.reactivex.netty.RxNetty;
 import io.reactivex.netty.pipeline.PipelineConfigurators;
-import io.reactivex.netty.protocol.http.client.HttpClient;
 import io.reactivex.netty.protocol.http.client.HttpClientRequest;
 import io.reactivex.netty.protocol.http.server.HttpServer;
 import io.reactivex.netty.protocol.http.server.HttpServerRequest;
 import io.reactivex.netty.protocol.http.server.HttpServerResponse;
 import io.reactivex.netty.protocol.http.server.RequestHandler;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import rx.Observable;
 
-public class HealthCheckHandlerTest {
+public class HealthCheckHandlerTest extends AbstractIntegrationTest {
 
-    private HttpServer<ByteBuf, ByteBuf> server;
     private HttpServer<ByteBuf, ByteBuf> externalServer;
-
-    private HttpClient<ByteBuf, ByteBuf> client;
-
-    private final int port = 23455;
-
     private final int externalServerPort = 23457;
+
+    @Override
+    protected RequestHandler<ByteBuf, ByteBuf> getHandler() {
+        return new HealthCheckHandler(objectMapper);
+    }
 
     @Before
     public void setUp() {
-        server = RxNetty.newHttpServerBuilder(port, new HealthCheckHandler())
-                .pipelineConfigurator(PipelineConfigurators.<ByteBuf, ByteBuf>httpServerConfigurator()).build();
-        server.start();
-
+        super.setUp();
         externalServer = RxNetty.newHttpServerBuilder(externalServerPort, new ExternalServerHandler())
                 .pipelineConfigurator(PipelineConfigurators.<ByteBuf, ByteBuf>httpServerConfigurator()).build();
         externalServer.start();
-
-        client = RxNetty.<ByteBuf, ByteBuf>newHttpClientBuilder("localhost", port)
-                .pipelineConfigurator(PipelineConfigurators.<ByteBuf, ByteBuf>httpClientConfigurator())
-                .channelOption(ChannelOption.CONNECT_TIMEOUT_MILLIS, 2000)
-                .build();
-
     }
-
-
-    @After
-    public void tearDown() throws InterruptedException {
-        server.shutdown();
-        externalServer.shutdown();
-    }
-
 
     @Test
     public void shouldPingExternalHostsForHealthCheck() {
