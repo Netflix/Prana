@@ -22,6 +22,7 @@ import com.netflix.appinfo.InstanceInfo;
 import com.netflix.prana.http.Context;
 import com.netflix.prana.service.HostService;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import rx.Observable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,11 +43,11 @@ public class HostsHandler extends AbstractRequestHandler {
     }
 
     @Override
-    public void handle(Context context) {
+    Observable<Void> handle(Context context) {
         String appName = context.getQueryParam("appName");
         String vip = context.getQueryParam("vip");
         if (Strings.isNullOrEmpty(appName)) {
-            context.sendError(HttpResponseStatus.BAD_REQUEST, "appName has to be specified");
+            return context.sendError(HttpResponseStatus.BAD_REQUEST, "appName has to be specified");
         } else {
             List<InstanceInfo> instances = hostService.getHosts(appName);
             List<String> hosts = new ArrayList<>();
@@ -56,7 +57,7 @@ public class HostsHandler extends AbstractRequestHandler {
                 }
                 hosts.add(instanceInfo.getHostName());
             }
-            context.send(hosts);
+            return context.send(hosts);
         }
     }
 }

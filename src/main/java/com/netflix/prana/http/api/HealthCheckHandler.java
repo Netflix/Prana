@@ -52,14 +52,14 @@ public class HealthCheckHandler extends AbstractRequestHandler {
     }
 
     @Override
-    void handle(final Context context) {
+    Observable<Void> handle(final Context context) {
         String externalHealthCheckURL = DynamicProperty.getInstance("prana.host.healthcheck.url")
                 .getString(DEFAULT_HEALTHCHECK_ENDPOINT);
         context.setHeader("Content-type", DEFAULT_CONTENT_TYPE);
         if (Strings.isNullOrEmpty(externalHealthCheckURL)) {
-            context.sendSimple(DEFAULT_OK_HEALTH);
+            return context.sendSimple(DEFAULT_OK_HEALTH);
         } else {
-            getResponse(externalHealthCheckURL).flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<Void>>() {
+            return getResponse(externalHealthCheckURL).flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<Void>>() {
                 @Override
                 public Observable<Void> call(HttpClientResponse<ByteBuf> response) {
                     if (response.getStatus().code() == HttpResponseStatus.OK.code()) {
@@ -75,7 +75,7 @@ public class HealthCheckHandler extends AbstractRequestHandler {
                     context.sendError(HttpResponseStatus.SERVICE_UNAVAILABLE, DEFAULT_FAIL_HEALTH);
                     return DEFAULT_NOOP_RESPONSE;
                 }
-            }).subscribe();
+            });
         }
     }
 
