@@ -25,6 +25,7 @@ import io.reactivex.netty.protocol.http.server.HttpServer;
 import io.reactivex.netty.protocol.http.server.HttpServerRequest;
 import io.reactivex.netty.protocol.http.server.HttpServerResponse;
 import io.reactivex.netty.protocol.http.server.RequestHandler;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,6 +47,12 @@ public class HealthCheckHandlerTest extends AbstractIntegrationTest {
         externalServer = RxNetty.newHttpServerBuilder(externalServerPort, new ExternalServerHandler())
                 .pipelineConfigurator(PipelineConfigurators.<ByteBuf, ByteBuf>httpServerConfigurator()).build();
         externalServer.start();
+    }
+
+    @After
+    public void tearDown() throws InterruptedException{
+        super.tearDown();
+        externalServer.shutdown();
     }
 
     @Test
