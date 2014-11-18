@@ -43,10 +43,10 @@ public class HealthCheckHandlerTest extends AbstractIntegrationTest {
     @Before
     public void setUp() {
         super.setUp();
-        externalServerPort = getRandomPort();
-        externalServer = RxNetty.newHttpServerBuilder(externalServerPort, new ExternalServerHandler())
+        externalServer = RxNetty.newHttpServerBuilder(0, new ExternalServerHandler())
                 .pipelineConfigurator(PipelineConfigurators.<ByteBuf, ByteBuf>httpServerConfigurator()).build();
         externalServer.start();
+        this.externalServerPort = externalServer.getServerPort();
     }
 
     @Test
