@@ -32,17 +32,14 @@ public abstract class AbstractIntegrationTest {
     protected HttpServer<ByteBuf, ByteBuf> server;
     protected HttpClient<ByteBuf, ByteBuf> client;
 
-    private final int port = 23455;
-
-
     protected abstract RequestHandler<ByteBuf, ByteBuf> getHandler();
 
     @Before
     public void setUp() {
-        server = RxNetty.newHttpServerBuilder(port, getHandler())
+        server = RxNetty.newHttpServerBuilder(0, getHandler())
                 .pipelineConfigurator(PipelineConfigurators.<ByteBuf, ByteBuf>httpServerConfigurator()).build();
         server.start();
-        client = RxNetty.<ByteBuf, ByteBuf>newHttpClientBuilder("localhost", port)
+        client = RxNetty.<ByteBuf, ByteBuf>newHttpClientBuilder("localhost", server.getServerPort())
                 .pipelineConfigurator(PipelineConfigurators.<ByteBuf, ByteBuf>httpClientConfigurator())
                 .channelOption(ChannelOption.CONNECT_TIMEOUT_MILLIS, 2000)
                 .build();

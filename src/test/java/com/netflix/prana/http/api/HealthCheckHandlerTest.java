@@ -34,7 +34,7 @@ import rx.Observable;
 public class HealthCheckHandlerTest extends AbstractIntegrationTest {
 
     private HttpServer<ByteBuf, ByteBuf> externalServer;
-    private final int externalServerPort = 23457;
+    private int externalServerPort;
 
     @Override
     protected RequestHandler<ByteBuf, ByteBuf> getHandler() {
@@ -44,9 +44,10 @@ public class HealthCheckHandlerTest extends AbstractIntegrationTest {
     @Before
     public void setUp() {
         super.setUp();
-        externalServer = RxNetty.newHttpServerBuilder(externalServerPort, new ExternalServerHandler())
+        externalServer = RxNetty.newHttpServerBuilder(0, new ExternalServerHandler())
                 .pipelineConfigurator(PipelineConfigurators.<ByteBuf, ByteBuf>httpServerConfigurator()).build();
         externalServer.start();
+        this.externalServerPort = externalServer.getServerPort();
     }
 
     @After
