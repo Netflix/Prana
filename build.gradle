@@ -1,5 +1,5 @@
 plugins {
-  id 'nebula.netflixoss' version '2.2.4'
+  id 'nebula.netflixoss' version '2.2.5'
 }
  
 group = "com.netflix.prana"
@@ -7,15 +7,8 @@ group = "com.netflix.prana"
 repositories {
     jcenter()
 }
-/*
-tasks.withType(Javadoc) {
-    if (JavaVersion.current().isJava8Compatible()) {
-        options.addStringOption('Xdoclint:none', '-quiet')
-    }
-}
-*/
+
 apply plugin: 'java'
-apply plugin: 'eclipse'
 apply plugin: 'application'
 
 sourceCompatibility = '1.7'
