@@ -27,6 +27,10 @@ dependencies {
     compile 'com.netflix.karyon:karyon2-admin-eureka-plugin:2.7.1'
     compile 'com.netflix.blitz4j:blitz4j:1.35'
 
+    compile 'com.netflix.ribbon:ribbon:2.1.0'
+    compile 'com.netflix.ribbon:ribbon-eureka:2.1.0'
+
+
     compile 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.3.3'
     compile 'com.fasterxml.jackson.core:jackson-core:2.3.3'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.3.3'
