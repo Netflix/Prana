@@ -38,11 +38,11 @@ public class TestUtils {
                     }
                 });
             }
-        }).onErrorFlatMap(new Func1<OnErrorThrowable, Observable<String>>() {
+        }).onErrorResumeNext(new Func1<Throwable, Observable<String>>() {
             @Override
-            public Observable<String> call(OnErrorThrowable onErrorThrowable) {
-                throw onErrorThrowable;
+            public Observable<String> call(Throwable throwable) {
+                return Observable.error(throwable);
             }
-        }).toBlocking().first();
+        }).toBlocking().single();
     }
 }

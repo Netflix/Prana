@@ -69,9 +69,9 @@ public class HealthCheckHandler extends AbstractRequestHandler {
                     }
                     return DEFAULT_NOOP_RESPONSE;
                 }
-            }).onErrorFlatMap(new Func1<OnErrorThrowable, Observable<Void>>() {
+            }).onErrorResumeNext(new Func1<Throwable, Observable<Void>>() {
                 @Override
-                public Observable<Void> call(OnErrorThrowable onErrorThrowable) {
+                public Observable<Void> call(Throwable throwable) {
                     context.sendError(HttpResponseStatus.SERVICE_UNAVAILABLE, DEFAULT_FAIL_HEALTH);
                     return DEFAULT_NOOP_RESPONSE;
                 }

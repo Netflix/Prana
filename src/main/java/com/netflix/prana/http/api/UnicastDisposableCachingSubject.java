@@ -79,6 +79,11 @@ final class UnicastDisposableCachingSubject<T extends ReferenceCounted> extends 
         state.setObserverRef(noOpSub); // All future notifications are not sent anywhere.
     }
 
+    @Override
+    public boolean hasObservers() {
+        return false;
+    }
+
     /**
      * The common state.
      */

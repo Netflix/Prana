@@ -15,6 +15,7 @@
  */
 package com.netflix.prana.http.api;
 
+import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.hystrix.HystrixCommandProperties;
 import com.netflix.ribbon.transport.netty.http.LoadBalancingHttpClient;
 import com.netflix.hystrix.HystrixCommandGroupKey;
@@ -35,8 +36,9 @@ public class NIWSCommand extends HystrixObservableCommand<HttpClientResponse<Byt
                           HystrixCommandKey key) {
         super(Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey("prana")).andCommandKey(key).
                 andCommandPropertiesDefaults(HystrixCommandProperties.Setter().
-                        withExecutionIsolationThreadTimeoutInMilliseconds(10000).
-                        withRequestCacheEnabled(false).
+                        withExecutionTimeoutInMilliseconds(DynamicPropertyFactory.getInstance()
+                                .getIntProperty("prana.NIWSCommand.hystrix.timeout", 10000).get())
+                        .withRequestCacheEnabled(false).
                         withExecutionIsolationSemaphoreMaxConcurrentRequests(1000).
                         withCircuitBreakerEnabled(false)));
 
@@ -45,7 +47,7 @@ public class NIWSCommand extends HystrixObservableCommand<HttpClientResponse<Byt
     }
 
     @Override
-    protected Observable<HttpClientResponse<ByteBuf>> run() {
+    protected Observable<HttpClientResponse<ByteBuf>> construct() {
         return httpClient.submit(req);
     }
 }

@@ -19,14 +19,15 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
-import com.netflix.adminresources.resources.KaryonWebAdminModule;
-import com.netflix.karyon.Karyon;
-import com.netflix.karyon.KaryonBootstrapSuite;
-import com.netflix.karyon.KaryonServer;
-import com.netflix.karyon.archaius.ArchaiusSuite;
-import com.netflix.karyon.eureka.KaryonEurekaModule;
 import com.netflix.prana.config.PranaConfig;
 import com.netflix.prana.http.api.SimpleRouter;
+import netflix.adminresources.resources.KaryonWebAdminModule;
+import netflix.karyon.Karyon;
+import netflix.karyon.KaryonBootstrapModule;
+import netflix.karyon.KaryonServer;
+import netflix.karyon.archaius.ArchaiusBootstrapModule;
+import netflix.karyon.eureka.KaryonEurekaModule;
+
 
 public class MainModule extends AbstractModule {
 
@@ -44,12 +45,12 @@ public class MainModule extends AbstractModule {
     @Singleton
     @Inject
     public KaryonServer providesKaryonSever(SimpleRouter simpleRouter) {
+
         return Karyon.forRequestHandler(config.getHttpPort(),
                 simpleRouter,
-                new KaryonBootstrapSuite(),
-                KaryonEurekaModule.asSuite(),
-                KaryonWebAdminModule.asSuite(),
-                new ArchaiusSuite(config.getAppName())
-        );
+                new KaryonBootstrapModule(),
+                new ArchaiusBootstrapModule(config.getAppName()),
+                KaryonEurekaModule.asBootstrapModule(),
+                Karyon.toBootstrapModule(KaryonWebAdminModule.class));
     }
 }

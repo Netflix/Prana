@@ -16,7 +16,7 @@
 package com.netflix.prana.http.api;
 
 import com.google.inject.Inject;
-import com.netflix.karyon.transport.http.SimpleUriRouter;
+import netflix.karyon.transport.http.SimpleUriRouter;
 import io.netty.buffer.ByteBuf;
 import io.reactivex.netty.protocol.http.server.HttpServerRequest;
 import io.reactivex.netty.protocol.http.server.HttpServerResponse;

@@ -1,5 +1,5 @@
 plugins {
-  id 'nebula.netflixoss' version '2.2.5'
+  id 'nebula.netflixoss' version '2.2.10'
 }
  
 group = "com.netflix.prana"
@@ -17,14 +17,14 @@ targetCompatibility = '1.7'
 dependencies {
     compile "org.slf4j:slf4j-api:${slf4j_version}"
 
-    compile 'com.netflix.ribbon:ribbon:2.0-RC9'
-    compile 'com.netflix.ribbon:ribbon-eureka:2.0-RC9'
-    compile 'com.netflix.ribbon:ribbon-transport:2.0-RC9'
-    compile 'com.netflix.karyon:karyon-governator:2.1.00-RC5'
-    compile 'com.netflix.karyon:karyon-eureka:2.1.00-RC5'
-    compile 'com.netflix.karyon:karyon-servo:2.1.00-RC5'
-    compile 'com.netflix.karyon:karyon-archaius:2.1.00-RC5'
-    compile 'com.netflix.karyon:karyon-admin-web:2.1.00-RC5'
+
+    compile 'com.netflix.karyon:karyon2-admin-web:2.7.1'
+    compile 'com.netflix.karyon:karyon2-eureka:2.7.1'
+    compile 'com.netflix.karyon:karyon2-governator:2.7.1'
+    compile 'com.netflix.karyon:karyon2-servo:2.7.1'
+    compile 'com.netflix.karyon:karyon2-core:2.7.1'
+    compile 'com.netflix.karyon:karyon2-archaius:2.7.1'
+    compile 'com.netflix.karyon:karyon2-admin-eureka-plugin:2.7.1'
     compile 'com.netflix.blitz4j:blitz4j:1.35'
 
     compile 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.3.3'
