@@ -36,3 +36,7 @@ We actively welcome pull requests.
 Copyright 2014 Netflix, Inc.
 
 Licensed under the Apache License, Version 2.0: http://www.apache.org/licenses/LICENSE-2.0
+
+## Current tate of this project
+
+The current implementation of this project is not used internally at Netflix and therefore updates to the open source have been slow.  For more context, see http://ispyker.blogspot.com/2015/10/towards-being-better-about-open-source.html
