@@ -16,35 +16,23 @@
 package com.netflix.prana.http.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Strings;
-import com.netflix.config.DynamicProperty;
 import com.netflix.prana.http.Context;
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelOption;
+import com.netflix.prana.service.healthcheck.HealthCheckService;
+import com.netflix.prana.service.healthcheck.HealthStatus;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.reactivex.netty.RxNetty;
-import io.reactivex.netty.pipeline.PipelineConfigurators;
-import io.reactivex.netty.protocol.http.client.HttpClient;
-import io.reactivex.netty.protocol.http.client.HttpClientRequest;
-import io.reactivex.netty.protocol.http.client.HttpClientResponse;
 import rx.Observable;
 import rx.exceptions.OnErrorThrowable;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 public class HealthCheckHandler extends AbstractRequestHandler {
     private static final String DEFAULT_CONTENT_TYPE = "application/xml";
     private static final Observable<Void> DEFAULT_NOOP_RESPONSE = Observable.just(null);
+    private static final HealthCheckService HEALTH_CHECK_SERVICE = HealthCheckService.getInstance();
 
-    public static final int DEFAULT_APPLICATION_PORT = 7101;
-    public static final int DEFAULT_CONNECTION_TIMEOUT = 2000;
-    public static final String DEFAULT_HEALTHCHECK_ENDPOINT = "http://localhost:7001/healthcheck";
     public static final String DEFAULT_OK_HEALTH = "<health>ok</health>";
     public static final String DEFAULT_FAIL_HEALTH = "<health>fail</health>";
-
 
     @Inject
     public HealthCheckHandler(ObjectMapper objectMapper) {
@@ -53,51 +41,24 @@ public class HealthCheckHandler extends AbstractRequestHandler {
 
     @Override
     Observable<Void> handle(final Context context) {
-        String externalHealthCheckURL = DynamicProperty.getInstance("prana.host.healthcheck.url")
-                .getString(DEFAULT_HEALTHCHECK_ENDPOINT);
         context.setHeader("Content-type", DEFAULT_CONTENT_TYPE);
-        if (Strings.isNullOrEmpty(externalHealthCheckURL)) {
-            return context.sendSimple(DEFAULT_OK_HEALTH);
-        } else {
-            return getResponse(externalHealthCheckURL).flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<Void>>() {
-                @Override
-                public Observable<Void> call(HttpClientResponse<ByteBuf> response) {
-                    if (response.getStatus().code() == HttpResponseStatus.OK.code()) {
-                        context.sendSimple(DEFAULT_OK_HEALTH);
-                    } else {
-                        context.sendError(HttpResponseStatus.SERVICE_UNAVAILABLE, DEFAULT_FAIL_HEALTH);
-                    }
-                    return DEFAULT_NOOP_RESPONSE;
-                }
-            }).onErrorFlatMap(new Func1<OnErrorThrowable, Observable<Void>>() {
-                @Override
-                public Observable<Void> call(OnErrorThrowable onErrorThrowable) {
+
+        return HEALTH_CHECK_SERVICE.getHealthStatus().flatMap(new Func1<HealthStatus, Observable<Void>>() {
+            @Override
+            public Observable<Void> call(HealthStatus healthStatus) {
+                if (healthStatus == HealthStatus.HEALTHY) {
+                    context.sendSimple(DEFAULT_OK_HEALTH);
+                } else {
                     context.sendError(HttpResponseStatus.SERVICE_UNAVAILABLE, DEFAULT_FAIL_HEALTH);
-                    return DEFAULT_NOOP_RESPONSE;
                 }
-            });
-        }
+                return DEFAULT_NOOP_RESPONSE;
+            }
+        }).onErrorFlatMap(new Func1<OnErrorThrowable, Observable<? extends Void>>() {
+            @Override
+            public Observable<? extends Void> call(OnErrorThrowable onErrorThrowable) {
+                context.sendError(HttpResponseStatus.SERVICE_UNAVAILABLE, DEFAULT_FAIL_HEALTH);
+                return DEFAULT_NOOP_RESPONSE;
+            }
+        });
     }
-
-    private Observable<HttpClientResponse<ByteBuf>> getResponse(String externalHealthCheckURL) {
-        String host = "localhost";
-        int port = DEFAULT_APPLICATION_PORT;
-        String path = "/healthcheck";
-        try {
-            URL url = new URL(externalHealthCheckURL);
-            host = url.getHost();
-            port = url.getPort();
-            path = url.getPath();
-        } catch (MalformedURLException e) {
-            //continue
-        }
-        Integer timeout = DynamicProperty.getInstance("prana.host.healthcheck.timeout").getInteger(DEFAULT_CONNECTION_TIMEOUT);
-        HttpClient<ByteBuf, ByteBuf> httpClient = RxNetty.<ByteBuf, ByteBuf>newHttpClientBuilder(host, port)
-                .pipelineConfigurator(PipelineConfigurators.<ByteBuf, ByteBuf>httpClientConfigurator())
-                .channelOption(ChannelOption.CONNECT_TIMEOUT_MILLIS, timeout)
-                .build();
-        return httpClient.submit(HttpClientRequest.createGet(path));
-
-    }
-
 }
